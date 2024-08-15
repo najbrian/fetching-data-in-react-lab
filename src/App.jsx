@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import * as starShipService from './services/starshipService.js'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import StarshipSearch from './components/StarshipSearch.jsx';
+import StarshipList from './components/StarshipList.jsx';
+
+import { useState, useEffect } from 'react';
+
+const App = () => {
+
+  const [starships, setStarships] = useState([])
+
+  const [searchResults, setSearchResults] = useState([])
+
+  const searchQuery = (userInput) => {
+    const result = starships.filter((ship) => ship.name.toLowerCase().includes(userInput.toLowerCase()))
+    
+    setSearchResults(result)
+  }
+
+  const resetSearch = async () => {
+    const data = await starShipService.show()
+      setStarships(data.results)
+  }
+
+  useEffect(() => {
+    const fetchDefaultData = async () => {
+      const data = await starShipService.show()
+      setStarships(data.results)
+    }
+
+    fetchDefaultData()
+  }, [])
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <h1>Hello world!</h1>
+    <StarshipSearch resetSearch={resetSearch} searchQuery={searchQuery}/>
+    {searchResults.length
+      ? <StarshipList ships={searchResults}/>
+      : <StarshipList ships={starships}/>
+      }
     </>
-  )
+  );
 }
 
 export default App
